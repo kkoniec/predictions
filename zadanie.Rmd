@@ -42,50 +42,31 @@ W trakcie trwania pierwszej części projektu należy skupić się na:
     - opisu analizowanych danych (spełnienie założeń statystycznych),
     - realizacji zadania (skuteczność w budowaniu zyskownych portfeli
       inwestycyjnych),
-3. zaproponowaniu zautomatyzowanej, finalnej strategii budowania portfela
-   inwestycyjnego.
+3. zaproponowaniu finalnej strategii budowania portfela inwestycyjnego.
 
 Poprawna realizacja każdej z wymienionych wyżej czynności będzie miała wpływ
 na liczbę punktów uzyskanych przez zespół z realizacji tej części projektu.
 
-Budując zautomatyzowane modele statystyczne dla dużych zbiorów danych nie zawsze
-jesteśmy w stanie zagwarantować spełnienie wszystkich założeń tych modeli dla
-całego analizowanego zbioru w każdym możliwym przypadku. Z tego powodu nie
-należy podczas realizacji projektu podchodzić do warsztatu statystycznego
-nadmiernie restrykcyjnie. Ważna jest jednak świadomość ograniczeń stosowanych 
-modeli. Wiedza o tym, jakie są konsekwencje obchodzenia poszczególnych założeń.
+Budując modele statystyczne dla dużych zbiorów danych nie zawsze jesteśmy w 
+stanie zagwarantować spełnienie wszystkich założeń tych modeli dla całego 
+analizowanego zbioru w każdym możliwym przypadku. Z tego powodu nie należy 
+podczas realizacji projektu podchodzić do warsztatu statystycznego nadmiernie 
+restrykcyjnie. Ważna jest jednak świadomość ograniczeń stosowanych  modeli. 
+Wiedza o tym, jakie są konsekwencje obchodzenia poszczególnych założeń.
 Świadomość, których założeń bezwzględnie pomijać nie wolno. Sporadyczne
 odchodzenie od dobrych praktyk statystycznych motywowane obiecującymi wynikami
 budowanego algorytmu lub potrzebą uogólnienia metody dla celów automatyzacji
 będą akceptowane. Dobrą praktyką jest wspominanie o tego typu problemach w
 komentarzach do kodu.
 
-Finalny model zaproponowany przez grupę powinien zostać zapisany w postaci
-pojedynczej funkcji R postaci
-
-```{R results='hide'}
-function(trainData, portfolio, ...) {
-    
-}
-```
-
-gdzie:
-
-- **trainData** --- dane trenujące dostarczone przez prowadzącego (wewnątrz
-  algorytmu mogą być oczyszczane, uzupełniane, modyfikowane, przycinane itp.),
-- **portfolio** --- obecny stan portfela inwestycyjnego grupy (generowany przez
-  prowadzącego po zakończeniu każdej sesji giełdowej podczas trwania drugiej
-  części projektu),
-- *...* --- wszystkie parametry algorytmu, które mogą podlegać modyfikacji
-  podczas trwania drugiej części projektu.
-
-Funkcja powinna zwracać zestaw transakcji jakie należy przeprowadzić na
-najbliższej sesji giełdowej w celu maksymalizacji zysku osiągniętego z portfela.
+Finalna strategia inwestowania zaproponowana przez grupę powinna zostać zapisana
+w postaci zbioru regół, którymi należy kierować się podczas budowy portfela, a
+których uzasadnieniem są przeprowadzone uprzednio analizy.
 
 Po zakończeniu pierwszej części projektu grupa powinna oddać do oceny plik R
 nazwany numerem grupy. Plik ten powinien zawierać wszystkie przeprowadzone
-przez grupę analizy wraz z komentarzami oraz wspomnianą powyżej funkcję. Plik
-należy oddać dodając go do odpowiedniego repozytorium GitHub.
+przez grupę analizy wraz z komentarzami oraz opis wypracowanej strategii
+inwestowania. Plik należy oddać dodając go do odpowiedniego repozytorium GitHub.
 
 ## Część 2: Predykcja
 
@@ -95,11 +76,6 @@ W trakcie trwania drugiej części projektu należy skupić się na:
 2. monitorowaniu skuteczności zaproponowanego modelu oraz poprawianiu jego
    parametrów w razie potrzeby,
 3. naprawianiu błędów napotkanych podczas działania algorytmu.
-
-Na tym etapie nie wolno już dokonywać zmian w ogólnej strukturze zaproponowanego
-algorytmu. Dozwolone jest natomiast dokonywanie jego napraw, jeżeli z jakiegoś
-powodu nie działa on poprawnie. Można również modyfikować jego parametry, jeżeli
-wydaje się on słabo współpracować z obecnie zadanymi.
 
 W trakcie trwania tej części projektu:
 
@@ -113,33 +89,10 @@ W trakcie trwania tej części projektu:
 Każde 0.5% zysku wypracowane przez grupę w trakcie trwania tej części projektu
 przełoży się na 1 punkt z projektu.
 
-## Role w ramach zespołu
-
-W ramach każdego 3-osobowego zespołu należy wyznaczyć po jednej osobie pełniącej
-każdą z poniższych ról:
-
-- **analizy** --- osoba zajmująca się analizami jest bezpośrednio odpowiedzialna
-  za realizację części pierwszej projektu, ponosi ona wszelkie negatywne
-  konsekwencje nie wywiązania się zespołu z realizacji tej części projektu,
-- **raportowanie** --- osoba zajmująca się raportowaniem jest bezpośrednio
-  odpowiedzialna za realizację drugiej części projektu, ponosi ona wszelkie
-  negatywne konsekwencje nie wywiązania się zespołu z realizacji tej części
-  projektu,
-- **zarządzanie** --- osoba zajmująca się zarządzaniem zespołem jest
-  odpowiedzialna za terminowe i rzetelne wykonywanie zadań przez wszystkich
-  członków grupy, odpowiada ona solidarnie z osobą zajmującą się analizami oraz
-  sobą zajmującą się raportowaniem za wszelkie problemy wynikłe w trakcie
-  realizacji zadania.
-
-Główne powody do ukarania jednego z członków grupy odjęciem punktów to:
-
-- nie wywiązywanie się w terminie z powierzonych zadań,
-- rażące niedbalstwo w realizacji powierzonej części projektu.
-
 ## Terminy
 
-- od 04.01.2016 do 18.01.2016 - realizacja pierwszej części projektu.
-- od 20.01.2016 do 02.01.2016 - realizacja drugiej części projektu.
+- od 11.01.2016 do 25.01.2016 - realizacja pierwszej części projektu.
+- od 27.01.2016 do 02.02.2016 - realizacja drugiej części projektu.
 
 # Dodatki
 
