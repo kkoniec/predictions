@@ -1,0 +1,114 @@
+### Jakub Lipski, Mikołaj Wiśniewski, Hubert Tomczyk###
+### Prognozowanie na podstawie modelu Arima############
+
+install.packages("forecast")
+install.packages("tseries")
+library(forecast)
+library(tseries)
+
+portfolio <- "C:/Users/Grzesiek/Documents/GIT/predictions/portfolio.RDS"
+trainData <- "C:/Users/Grzesiek/Documents/GIT/predictions/wig30components.RDS"
+
+AutoPredict = function(
+  trainData,
+  portfolio
+){
+  
+### Wgrywamy dane do nauki ###
+  readRDS(file = trainData)-> zamkniecie
+  
+### Wygrawanie danych do porftela
+  readRDS(file = portfolio)-> InvestingPortfolio
+ 
+### Oczyszczenie danych### Tu się wszystko zaczyna###
+zamkniecie <- na.omit(zamkniecie)
+zamkniecie
+
+WIG <- data.frame(
+    row.names=c(
+      'acp', 'alr', 'att', 'bhw', 'bzw', 'ccc', 'cdr', 'cps', 'ena', 'eng',
+      'eur', 'gtc', 'ing', 'jsw', 'ker', 'kgh', 'lpp', 'lts', 'lwb', 'mbk',
+      'opl', 'peo', 'pge', 'pgn', 'pkn', 'pko', 'pkp', 'pzu', 'sns', 'tpe'
+    ),
+    quantity=c( rep(0, 30))
+  )
+### Stopy zwrotu###
+
+for(i in 1:30) {
+	zamkniecie[,i] -> Data
+   		#zamkniecie$lpp -> Data
+    		length(Data) -> T
+   		log(Data[-1] / Data[-T]) -> STzwrotu
+		
+STzwrotu
+
+###MODEL ARIMA###
+### funkcja zaczerpnięta z internetu###
+
+adf.test(STzwrotu) -> adf
+### In adf.test(STzwrotu) : p-value smaller than printed p-value ###
+kpss.test(STzwrotu) -> kpss
+
+if (adf$p.value <= 0.05 && kpss$p.value > 0.05) {
+	auto.arima(STzwrotu) -> ModelArima  
+      forecast(ModelArima, h=1, fan=TRUE)-> PrognozaArima
+      PrognozaArima$mean[1] -> WartPrognozy
+	WIG[i,1] <- WartPrognozy
+}
+}
+WIG
+#####################################################################
+### Wartosc predykcji dla akcji mówi czy mamy kupic czy sprzedać  ###
+### Jeżeli wartość jest ujemna to wybieramy akcje sprzedaż 		###
+### Jeżeli wartość jest dodatnia to wybieramy akcje na kupno 	###
+### Dla zera zostajemy w miejscu 						###
+#####################################################################
+#####################################################################
+####### BUY && SELL #################################################
+  
+  Tablica <- data.frame(
+    row.names=c(
+      'acp', 'alr', 'att', 'bhw', 'bzw', 'ccc', 'cdr', 'cps', 'ena', 'eng',
+      'eur', 'gtc', 'ing', 'jsw', 'ker', 'kgh', 'lpp', 'lts', 'lwb', 'mbk',
+      'opl', 'peo', 'pge', 'pgn', 'pkn', 'pko', 'pkp', 'pzu', 'sns', 'tpe'
+    ),
+    quantity=c(rep(0, 30)),
+    value=c(rep(0, 30))
+  )
+
+nrow(Tablica) -> WierszeTab
+nrow(close) -> WierszeNauka
+
+### Dodaje aktualne ceny instrumentów ##############
+  
+for(i in 1:WierszeTab){
+Tablica[i,2] <- close[WierszeNauka,i] 
+}
+
+### Sprzedaż, jeżeli jest ponieżej 0##############
+InvestingPortfolio[1,2] -> Gotowka
+IleNaPlus = 0
+
+for (i in 1:WierszeTab) {
+ if ( WIG[i,1] < 0) {
+	Tablica[i,1] <- -InvestingPortfolio[i+1,1] ###wartosc do inwestycji zaczynaja sie od pozycji drugiej!####
+	Gotowka <- Gotowka - Tablica[i,1] * Tablica[i,2]
+	}
+ if (WIG[i,1] >0 && InvestingPortfolio[i+1,1] == 0) {
+	IleNaPlus <- IleNaPlus + 1
+	}
+}
+
+### Kupno, wskaznik ile zostało kasy na rozdzielenie na kupno####
+
+Gotowka / IleNaPlus -> Wskaznik
+
+for ( i in 1:WierszeTab) {
+	if (WIG[i,1] >0 && InvestingPortfolio[i+1,1] <= 0) {
+	Tablica[i,1] <- floor(Wskaznik / Tablica[i,2])
+	}
+}
+return(Tablica)
+}
+
+zmienna <- AutoPredict(trainData,portfolio)
