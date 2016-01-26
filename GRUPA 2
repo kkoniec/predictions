@@ -1,0 +1,145 @@
+setwd('C:/Users/User/Desktop/JAMER PROJEKT 2')
+
+read.table("close_bez_NA.csv", header=TRUE, sep=";", dec=".") -> close
+
+close[,c('acp','alr','att','bhw','bzw','ccc','cdr','cps','ena','eng','eur','gtc','ing','jsw','ker','kgh','lpp','lts','lwb','mbk','opl','peo','pge','pgn','pkn','pko','pkp','pzu','sns','tpe')] -> close
+as.data.frame(na.spline(close, na.rm=TRUE)) -> close
+
+close$acp -> ACP
+close$alr -> ALR
+close$att -> ATT
+close$bhw -> BHW
+close$bzw -> BZW
+close$ccc -> CCC
+close$cdr -> CDR
+close$cps -> CPS
+close$ena -> ENA
+close$eng -> ENG
+close$eur -> EUR
+close$gtc -> GTC
+close$ing -> ING
+close$jsw -> JSW
+close$ker -> KER
+close$kgh -> KGH
+close$lpp -> LPP
+close$lts -> LTS
+close$lwb -> LWB
+close$mbk -> MBK
+close$opl -> OPL
+close$peo -> PEO
+close$pge -> PGE
+close$pgn -> PGN
+close$pkn -> PKN
+close$pko -> PKO
+close$pkp -> PKP
+close$pzu -> PZU
+close$sns -> SNS
+close$tpe -> TPE
+
+adf.test(ACP)
+adf.test(ALR)
+adf.test(ATT)
+adf.test(BHW)
+adf.test(BZW)
+adf.test(CCC)
+adf.test(CDR)
+adf.test(CPS)
+adf.test(ENA)
+adf.test(ENG)
+adf.test(EUR)
+adf.test(GTC)
+adf.test(ING)
+adf.test(JSW)
+adf.test(KER)
+adf.test(KGH)
+adf.test(LPP)
+adf.test(LTS)
+adf.test(LWB)
+adf.test(MBK)
+adf.test(OPL)
+adf.test(PEO)
+adf.test(PGN)
+adf.test(PGN)
+adf.test(PKN)
+adf.test(PKO)
+adf.test(PKP)
+adf.test(PZU)
+adf.test(SNS)
+adf.test(TPE)
+
+##jeżeli p-value>0.05 - szereg jest niestacjonarny
+##dane są niestacjonarne
+##wiemy, że nasze dane można sprwadzić do postaci stacjonarnej poprzez jedno różnicowanie:
+
+diff(ALR)->dALR
+adf.test(dALR)
+diff(ATT)->dATT
+adf.test(dATT)
+diff(BHW)->dBHW
+adf.test(dBHW)
+diff(BZW)->dBZW
+adf.test(dBZW)
+diff(CCC)->dCCC
+adf.test(dCCC)
+diff(CDR)->dCDR
+adf.test(dCDR)
+diff(CPS)->dCPS
+adf.test(dCPS)
+diff(ENA)->dENA
+adf.test(dENA)
+diff(ENG)->dENG
+adf.test(dENG)
+diff(EUR)->dEUR
+adf.test(dEUR)
+diff(GTC)->dGTC
+adf.test(dGTC)
+diff(ING)->dING
+adf.test(dING)
+diff(JSW)->dJSW
+adf.test(dJSW)
+diff(KER)->dKER
+adf.test(dKER)
+diff(KGH)->dKGH
+adf.test(dKGH)
+diff(LPP)->dLPP
+adf.test(dLPP)
+diff(LTS)->dLTS
+adf.test(dLTS)
+diff(LWB)->dLWB
+adf.test(dLWB)
+diff(MBK)->dMBK
+adf.test(dMBK)
+diff(OPL)->dOPL
+adf.test(dOPL)
+diff(PEO)->dPEO
+adf.test(dPEO)
+diff(PGE)->dPGE
+adf.test(dPGE)
+diff(PGN)->dPGN
+adf.test(dPGN)
+diff(PKN)->dPKN
+adf.test(dPKN)
+diff(PKO)->dPKO
+adf.test(dPKO)
+diff(PKP)->dPKP
+adf.test(dPKP)
+diff(PZU)->dPZU
+adf.test(dPZU)
+diff(TPE)->dTPE
+adf.test(dTPE)
+
+##my jednak skorzystamy z funkcji auto.Arima, która automatycznie wyliczy nam parametry p, d, q
+##model ARIMA stosujemy wyłącznie do takich procesów, które można sprowadzić do postaci stacjonarnej
+
+for (i in 1:30)
+{      
+ forecast.Arima(auto.arima(close[,i]), h=1, fan=TRUE) -> AA
+	AA$mean[1] -> Prog[i]
+}
+
+close[511,] -> Baza
+Prog - Baza -> Wynik
+
+##na podstawie pobranych danych ARIMA zaprognozowała ceny dla spółek, które zostały wczytane do tabeli
+##następnie została wyliczona różnica pomiędzy ceną bazową a prognozowaną dla spółek
+##na tej podstawie będziemy planować nasze zakupy, jeśli różnica będzie większa od 0 bę
