@@ -1,0 +1,67 @@
+library(quadprog) 
+library(zoo) 
+library(tseries) 
+library(forecast) 
+
+
+#program ma obliczac jak nalepszy model ARIMA dla wgranych cen zamkniecia wybranej spolki
+#prognozowanie na podstawie modelu beda wyznaczane ktorkie horyzontu modelu dlatego zotaly ujete dane od 2015-10-26
+#termin zwiazany jestz wyborami parlamentarnymi ktore jednoznacznie wplynely na gielde
+
+
+
+read.table('C:/Users/p.rytel/Desktop/projekt/lpp_d.csv', header=TRUE, sep=",", dec=".")->R
+R[,c(1,5)]->lpp
+lpp
+
+
+#wykres cen zamkniecia
+plot(lpp,type="l", main="Cena zamknięcia", xlab="Obserwacja", ylab="Cena.", col="blue")
+
+
+#logarytmizujemy szereg
+
+lpp.log <- log(lpp)
+
+#funkcja acf maleje wykładniczo zatem w szeregu wystepuje trend, szereg trzeba zroznicowac
+tsdisplay(lpp.log,lag=20,main="ceny zamknięcia \n po zlogarytmowaniu",col="blue")
+
+#za pomoca wykresow ADF i PACF okreslamy poziom D i P, 
+
+lpp.log.dif.14<-diff(lpp.log, lag = 14) #roznicowanie sezonowe
+lpp.log.stac <-diff(lpp.log.dif.14, diff = 1) # roznicowanie
+tsdisplay(lpp.log.stac,lag=20,main="Ceny zamkniecia po zlogarytmowaniu \n i sprowadzeniu do stacjonarności (d=1, D=1)", col="blue")
+
+
+arima.1 <- arima(lpp.log, order = c(0, 1, 1), seasonal = list(order = c(0, 1, 1)))
+arima.1
+ 
+tsdiag(arima.1)
+
+#za pomoca wykresu sprawdzamy czy reszty modelu maja rozklad normalny 
+
+reszty <- arima.1$resid #reszty z modelu
+par(mfrow = c(1, 2),cex=0.8,cex.main=1.1,cex.lab=1.1) #wizualne aspekty wykresu
+hist(reszty, main="Histogram reszt",ylab="Gęstość",xlab="",prob=T) # histogram
+curve(dnorm(x,mean=mean(reszty),sd=sd(reszty)),col="red",add=T) # krzywa normalna na hist
+qqnorm(reszty,main="Kwantyle reszt", xlab="Kwantyle teoretyczne", ylab="Kwantyle z próby")
+
+#dla pewnosci sprawdzamy normalnos za pomoca testu Shapiro Wilka
+
+shapiro.test(reszty)
+
+#jeżeli o-value >0,05 to reszty mają rozkład normalny
+
+#wyznaczamy prognozy na 5 okresów w przód
+prog <- forecast(arima.1,h=5)
+prog
+
+#wyznaczamy prognozy punktowe i przedzialowe dla poziomu ufnosci 0,95 i 0,8
+#zamieniamy logarytmy z powrotem na normalne wartosci
+
+prog$mean <- exp(prog$mean) #dla prognoz punktowych
+prog$lower <- exp(prog$lower) #dla prognoz przedzialowych (dolne oszacowanie)
+prog$upper <- exp(prog$upper) #dla prognoz przedzialowych (gorne oszacowanie)
+prog$x <- exp(prog$x) #dla wyjsciowego szeregu czasowego
+
+plot(prog)
