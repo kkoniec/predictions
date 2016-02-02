@@ -1,0 +1,63 @@
+#install.packages("lmtest")
+#install.packages("forecast")
+#install.packages("tseries")
+#library(tseries)
+#library(lmtest)
+#library(forecast)
+
+
+setwd("C:/Users/Kasia/Desktop/Projekt")
+dane <- readRDS('wig30.RDS') 
+dane <- dane[2:(nrow(dane)-4),] 
+
+#poniższa funkcja aproksymuje liniowo braki danych
+missing.values <- function(y){
+	approxfun(1:nrow(dane), y)(1:nrow(dane))
+}
+
+dane <- as.data.frame(apply(dane, 2, missing.values))
+
+Przewidywania <- as.data.frame(matrix(0,ncol(dane),4))
+rownames(Przewidywania) <- colnames(dane) 
+colnames(Przewidywania) <- c("kpss","adf","pred","SE") 
+
+
+for(i in (1:nrow(Przewidywania))[-16]){
+	szereg <- na.omit(dane[,i]) 
+        #wyrzucamy braki danych
+
+	log.szereg <- log(szereg[-1]/szereg[-length(szereg)]) 
+	#do dalszych testów wykorzystamy zlogarytmowane różnice
+
+	Przewidywania$kpss[i] <- kpss.test(log.szereg)$p.value
+	#sprawdzamy wartość p-value w teście KPSS - badamy stacjonarność danych
+
+	Przewidywania$adf[i] <- adf.test(log.szereg)$p.value
+	model <- auto.arima(log.szereg) 
+	#dopasowujemy najlepszy model arima
+
+	Przewidywania$pred[i] <- predict(model)$pred[1]
+	#zwraca błąd standardowy przewidywania
+	Przewidywania$SE[i] <- predict(model)$se[1]
+}
+
+#przewidzieliśmy logarytm z różnicy, wracamy do surowych danych
+pred2 <- exp(Przewidywania$pred+log(dane[nrow(dane),]))
+
+Przewidywania$pred2 <- t(pred2)
+#znajdujemy spółki, dla których testy wykazuja normalność oraz stopa zwrotu jest > 0
+
+ind <- which(Przewidywania$kpss>0.05 & Przewidywania$adf<0.05 & 
+		Przewidywania$pred>0) 
+rownames(Przewidywania)[ind] 
+#wyswietlamy nazwy spółek, które spełniaja warunki
+
+kandydaci <- Przewidywania[ind,] # spółki, które spełniaja warunek
+#wyświetlone zostaną nazwy spółek w kolejności od najwiekszej przewidywanej dodatniej zmiany ceny
+rownames(kandydaci)[order(kandydaci$pred, decreasing=T)]
+
+#graficzny przykład dla spółki CPS
+plot(1:50,tail(dane$cps,50),type="l",xlim=c(1,51))
+points(51,Przewidywania["cps","pred2"],col="red")
+
+#Przy podejmowaniu decyzji o zakupie będziemy sugerować się największą prognozowaną dodatnią zmianą ceny
